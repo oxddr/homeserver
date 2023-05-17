@@ -1,0 +1,61 @@
+---
+- name: Install zfs and auto-snapshot
+  apt:
+    name:
+    - zfsutils-linux
+    - zfs-auto-snapshot
+    state: latest
+    cache_valid_time: 36000
+
+# Gather space usage about all imported ZFS pools
+- zpool_facts: properties='free,size'
+
+- debug: msg='ZFS pool {{ item.name }} exists? -> [{{ item.name == zfs.pool_name }}] It has {{ item.free }} free space out of {{ item.size }}.'
+  loop: "{{ ansible_zfs_pools | flatten(levels=1) }}"
+
+- name: Create zsh pool '{{zfs.pool_name}}' with 2
+  shell: 'zpool create -o {{zfs.pool_name}} mirror {{zfs.disk1}} {{zfs.disk2}}'
+  when: 'not (ansible_zfs_pools|length > 0 and ansible_zfs_pools[0].name == zfs.pool_name)'
+
+- name: Enable auto snapshots for {{zfs.pool_name}}
+  shell: zfs set com.sun:auto-snapshot=true {{zfs.pool_name}}
+
+- name: Create file system for personal files
+  zfs:
+    name: '{{zfs.pool_name}}/personal'
+    state: present
+
+- name: Enable all snapshots for personal files
+  shell: |
+    zfs set com.sun:auto-snapshot:monthly=true {{zfs.pool_name}}/personal
+    zfs set com.sun:auto-snapshot:weekly=true {{zfs.pool_name}}/personal
+    zfs set com.sun:auto-snapshot:daily=true {{zfs.pool_name}}/personal
+    zfs set com.sun:auto-snapshot:hourly=true {{zfs.pool_name}}/personal
+    zfs set com.sun:auto-snapshot:frequent=true {{zfs.pool_name}}/personal
+
+- name: Create file system for docker data
+  zfs:
+    name: '{{zfs.pool_name}}/docker'
+    state: present
+
+- name: Enable weekly snapshots for docker files
+  shell: |
+    zfs set com.sun:auto-snapshot:monthly=true {{zfs.pool_name}}/docker
+    zfs set com.sun:auto-snapshot:weekly=true {{zfs.pool_name}}/docker
+    zfs set com.sun:auto-snapshot:daily=false {{zfs.pool_name}}/docker
+    zfs set com.sun:auto-snapshot:hourly=false {{zfs.pool_name}}/docker
+    zfs set com.sun:auto-snapshot:frequent=false {{zfs.pool_name}}/docker
+
+- name: Create file system for backups
+  zfs:
+    name: '{{zfs.pool_name}}/backup'
+    state: present
+
+- name: Enable monthly snapshots for backup files
+  shell: |
+    zfs set com.sun:auto-snapshot:monthly=true {{zfs.pool_name}}/backup
+    zfs set com.sun:auto-snapshot:weekly=false {{zfs.pool_name}}/backup
+    zfs set com.sun:auto-snapshot:daily=false {{zfs.pool_name}}/backup
+    zfs set com.sun:auto-snapshot:hourly=false {{zfs.pool_name}}/backup
+    zfs set com.sun:auto-snapshot:frequent=false {{zfs.pool_name}}/backup
+

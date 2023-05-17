@@ -1,0 +1,14 @@
+---
+  - name: "Setting up the homeserver"
+    connection: local
+    hosts: localhost
+    
+    # Become root user, which is needed for most tasks
+    become: yes
+    become_user: root
+    
+    vars_files:
+        - vars/main.yaml
+
+    tasks:
+    - import_tasks: tasks/zfs.yaml
