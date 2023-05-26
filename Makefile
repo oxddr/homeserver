@@ -1,7 +1,7 @@
 .PHONY: run
 run:
-	ansible-playbook playbook.yaml --diff --ask-become-pass
+	ansible-playbook ansible/playbook.yaml --diff --ask-become-pass
 
 .PHONY: tag
 tag:
-	ansible-playbook playbook.yaml --diff --tags $(tags)
+	ansible-playbook ansible/playbook.yaml --diff --tags $(tags)

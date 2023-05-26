@@ -1,8 +1,31 @@
 ---
-# All non-secret vars that can be stored safely in public Git repository 
+# All non-secret vars that can be stored safely in public Git repository
 
-zfs: { 
+zfs: {
   pool_name: 'tank',
   disk1: '/dev/disk/by-id/ata-ST4000VN008-2DR166_ZDHB0FZK',
   disk2: '/dev/disk/by-id/ata-ST4000VN008-2DR166_ZDH1P0F2',
-} 
+}
+
+usergroups:
+  - family
+
+users:
+  -
+    name: 'ddr'
+    groups: 'family'
+    smbpasswd: 'thisistemporarypass'
+  -
+    name: 'basia'
+    groups: 'family'
+    smbpasswd: 'thisistemporarypass'
+
+shared_folders_group: family
+
+shared_folders:
+  -
+    name: 'Shared Folder'
+    path: '/{{zfs.pool_name}}/personal/all'
+  -
+    name: 'Shared Backup Folder'
+    path: '/{{zfs.pool_name}}/backup/all'
