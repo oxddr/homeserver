@@ -1,5 +1,5 @@
 ---
-- name: Install zfs and auto-snapshot
+- name: Install zfs and related utils
   apt:
     name:
     - zfsutils-linux
@@ -14,7 +14,7 @@
   loop: "{{ ansible_zfs_pools | flatten(levels=1) }}"
 
 - name: Create zsh pool '{{zfs.pool_name}}' with 2
-  shell: 'zpool create -o {{zfs.pool_name}} mirror {{zfs.disk1}} {{zfs.disk2}}'
+  shell: 'zpool create {{zfs.pool_name}} mirror {{zfs.disk1}} {{zfs.disk2}}'
   when: 'not (ansible_zfs_pools|length > 0 and ansible_zfs_pools[0].name == zfs.pool_name)'
 
 - name: Enable auto snapshots for {{zfs.pool_name}}
@@ -58,4 +58,3 @@
     zfs set com.sun:auto-snapshot:daily=false {{zfs.pool_name}}/backup
     zfs set com.sun:auto-snapshot:hourly=false {{zfs.pool_name}}/backup
     zfs set com.sun:auto-snapshot:frequent=false {{zfs.pool_name}}/backup
-
