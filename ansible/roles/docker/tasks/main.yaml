@@ -1,9 +1,4 @@
 ---
-- name: Setup docker .env file
-  template:
-    src: docker.env
-    dest: "../.env"
-
 # TODO: make this task generic (aka. not tied to Debian nor its specific release)
 - name: Add Docker apt repository GPG key
   get_url:

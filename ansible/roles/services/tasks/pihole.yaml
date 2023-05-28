@@ -1,0 +1,11 @@
+---
+- name: Setup docker .env file
+  template:
+    src: docker.env
+    dest: "{{ role_path }}/definitions/pihole/.env"
+  tags: pihole
+
+- name: Create and start pihole service
+  community.docker.docker_compose:
+    project_src: "{{ role_path }}/definitions/pihole"
+  tags: pihole
