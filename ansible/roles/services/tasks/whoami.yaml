@@ -1,0 +1,5 @@
+---
+- name: Create and start whoami service
+  community.docker.docker_compose:
+    project_src: "{{ role_path }}/definitions/whoami"
+  tags: whoami

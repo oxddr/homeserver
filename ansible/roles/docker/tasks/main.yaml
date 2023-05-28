@@ -25,9 +25,16 @@
       - containerd.io
       - docker-buildx-plugin
       - docker-compose-plugin
-      - python3-docker
     state: latest
     cache_valid_time: 3600
+  tags: apt
+
+- name: Install Python packages for Docker
+  pip:
+    name:
+      - docker
+      - docker-compose
+  tags: pip
 
 - name: Ensure docker group exists
   group:
@@ -43,7 +50,3 @@
   file:
     path: "{{docker.data_dir}}"
     state: directory
-
-- name: Create the external docker network {{docker.external_network}}
-  docker_network:
-    name: "{{docker.external_network}}"

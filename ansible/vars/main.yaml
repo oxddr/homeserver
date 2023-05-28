@@ -33,7 +33,4 @@ shared_folders:
 
 docker: {
   data_dir: '/{{zfs.pool_name}}/docker/data',
-  external_network: proxynet,
-  PUID: '1000',
-  PGID: '115'
 }
