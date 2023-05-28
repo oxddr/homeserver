@@ -1,0 +1,49 @@
+---
+- name: Setup docker .env file
+  template:
+    src: docker.env
+    dest: "../.env"
+
+# TODO: make this task generic (aka. not tied to Debian nor its specific release)
+- name: Add Docker apt repository GPG key
+  get_url:
+    url: "https://download.docker.com/linux/debian/gpg"
+    dest: "/usr/share/keyrings/docker.asc"
+    mode: "0644"
+
+# TODO: make this task generic (aka. not tied to Debian nor its specific release)
+- name: Configure Docker apt repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/docker.asc] https://download.docker.com/linux/debian bullseye stable"
+    filename: docker
+
+- name: Install the needed docker packages
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+      - python3-docker
+    state: latest
+    cache_valid_time: 3600
+
+- name: Ensure docker group exists
+  group:
+    name: docker
+    state: present
+
+- name: Start docker
+  ansible.builtin.systemd:
+    state: started
+    name: docker
+
+- name: Create folder for docker data
+  file:
+    path: "{{docker.data_dir}}"
+    state: directory
+
+- name: Create the external docker network {{docker.external_network}}
+  docker_network:
+    name: "{{docker.external_network}}"

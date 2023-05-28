@@ -14,6 +14,14 @@
     roles:
       - role: samba
         tags: samba
+      - role: docker
+        tags: docker
+
+    pre_tasks:
+    - name: Run the equivalent of "apt-get update"
+      apt:
+        update_cache: true
+      changed_when: false
 
     tasks:
     - import_tasks: tasks/zfs.yaml

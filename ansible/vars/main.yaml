@@ -29,3 +29,11 @@ shared_folders:
   -
     name: 'Shared Backup Folder'
     path: '/{{zfs.pool_name}}/backup/all'
+
+
+docker: {
+  data_dir: '/{{zfs.pool_name}}/docker/data',
+  external_network: proxynet,
+  PUID: '1000',
+  PGID: '115'
+}
