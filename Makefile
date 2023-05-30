@@ -1,12 +1,13 @@
+PLAYBOOK_CMD=ansible-playbook playbook.yaml --diff
 VAULT_PASS=--vault-password-file ansible.pass
 
 .PHONY: run
 run:
-	ansible-playbook ansible/playbook.yaml --diff $(VAULT_PASS)
+	 $(PLAYBOOK_CMD) $(VAULT_PASS)
 
 .PHONY: tag
 tag:
-	ansible-playbook ansible/playbook.yaml --diff $(VAULT_PASS) --tags $(tags)
+	 $(PLAYBOOK_CMD) $(VAULT_PASS) --tags $(tags)
 
 .PHONY: secret
 secret:
