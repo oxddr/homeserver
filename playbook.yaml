@@ -12,6 +12,8 @@
         - vars/vault.yaml
 
     roles:
+      - role: zfs
+        tags: zfs
       - role: samba
         tags: samba
       - role: docker
@@ -26,5 +28,4 @@
       changed_when: false
 
     tasks:
-    - import_tasks: tasks/zfs.yaml
     - import_tasks: tasks/users.yaml
