@@ -27,7 +27,7 @@
 
 - name: Create backup folder for users
   file:
-    path: /{{zfs.pool_name}}/backup/{{item.name}}
+    path: /{{zfs.pool_name}}/local/{{item.name}}
     state: directory
     owner: "{{item.name}}"
     group: "{{item.name}}"

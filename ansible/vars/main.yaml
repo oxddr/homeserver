@@ -27,8 +27,8 @@ shared_folders:
     name: 'Shared Folder'
     path: '/{{zfs.pool_name}}/personal/all'
   -
-    name: 'Shared Backup Folder'
-    path: '/{{zfs.pool_name}}/backup/all'
+    name: 'Shared Local Folder (no backup)'
+    path: '/{{zfs.pool_name}}/local/all'
 
 
 docker: {

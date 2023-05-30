@@ -46,15 +46,15 @@
     zfs set com.sun:auto-snapshot:hourly=false {{zfs.pool_name}}/docker
     zfs set com.sun:auto-snapshot:frequent=false {{zfs.pool_name}}/docker
 
-- name: Create file system for backups
+- name: Create file system for local
   zfs:
-    name: '{{zfs.pool_name}}/backup'
+    name: '{{zfs.pool_name}}/local'
     state: present
 
-- name: Enable monthly snapshots for backup files
+- name: Disable snapshots for local files
   shell: |
-    zfs set com.sun:auto-snapshot:monthly=true {{zfs.pool_name}}/backup
-    zfs set com.sun:auto-snapshot:weekly=false {{zfs.pool_name}}/backup
-    zfs set com.sun:auto-snapshot:daily=false {{zfs.pool_name}}/backup
-    zfs set com.sun:auto-snapshot:hourly=false {{zfs.pool_name}}/backup
-    zfs set com.sun:auto-snapshot:frequent=false {{zfs.pool_name}}/backup
+    zfs set com.sun:auto-snapshot:monthly=false {{zfs.pool_name}}/local
+    zfs set com.sun:auto-snapshot:weekly=false {{zfs.pool_name}}/local
+    zfs set com.sun:auto-snapshot:daily=false {{zfs.pool_name}}/local
+    zfs set com.sun:auto-snapshot:hourly=false {{zfs.pool_name}}/local
+    zfs set com.sun:auto-snapshot:frequent=false {{zfs.pool_name}}/local
