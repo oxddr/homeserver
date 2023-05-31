@@ -29,3 +29,11 @@
 
     tasks:
     - import_tasks: tasks/users.yaml
+    - name: Install important packages
+      apt:
+        name:
+          - avahi-daemon
+          - unattended-upgrades
+        state: latest
+        cache_valid_time: 3600
+      tags: apt
