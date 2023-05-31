@@ -1,0 +1,19 @@
+---
+- name: Create and start watchtower service
+  community.docker.docker_compose:
+    project_name: watchtower
+    definition:
+      version: "3.3"
+      services:
+        watchtower:
+          container_name: watchtower
+          hostname: "watchtower.{{ vault_domain.name }}"
+          image: containrrr/watchtower
+          restart: unless-stopped
+          volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+          environment:
+            TZ: "{{ docker.tz }}"
+            WATCHTOWER_CLEANUP: "true" # optional - deletes old images to safe some space
+            WATCHTOWER_NOTIFICATIONS: shoutrrr
+            WATCHTOWER_NOTIFICATION_URL: "pushover://shoutrrr:{{ vault_pushover.token }}@{{ vault_pushover.user }}"

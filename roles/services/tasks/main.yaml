@@ -5,3 +5,5 @@
   tags: pihole
 - import_tasks: "traefik.yaml"
   tags: traefik
+- import_tasks: "watchtower.yaml"
+  tags: watchtower
