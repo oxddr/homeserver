@@ -1,11 +1,16 @@
 ---
 # All non-secret vars that can be stored safely in public Git repository
 
-zfs: {
-  pool_name: 'tank',
-  disk1: '/dev/disk/by-id/ata-ST4000VN008-2DR166_ZDHB0FZK',
-  disk2: '/dev/disk/by-id/ata-ST4000VN008-2DR166_ZDH1P0F2',
-}
+zfs:
+  pool_name: 'tank'
+  disk1: '/dev/disk/by-id/ata-ST4000VN008-2DR166_ZDHB0FZK'
+  disk2: '/dev/disk/by-id/ata-ST4000VN008-2DR166_ZDH1P0F2'
+  backup:
+    pools:
+      - 'backup-wdc'
+    filesystems:
+      - 'docker'
+      - 'personal'
 
 usergroups:
   - family
@@ -31,8 +36,7 @@ shared_folders:
     path: '/{{zfs.pool_name}}/local/all'
 
 
-docker: {
-  data_dir: '/{{zfs.pool_name}}/docker/data',
-}
+docker:
+  data_dir: '/{{zfs.pool_name}}/docker/data'
 
-myip: "192.168.1.50"
+myip: '192.168.1.50'

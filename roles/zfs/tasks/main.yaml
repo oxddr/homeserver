@@ -4,8 +4,10 @@
     name:
     - zfsutils-linux
     - zfs-auto-snapshot
+    - sanoid
     state: latest
     cache_valid_time: 36000
+  tags: apt
 
 # Gather space usage about all imported ZFS pools
 - zpool_facts: properties='free,size'
@@ -13,9 +15,10 @@
 - debug: msg='ZFS pool {{ item.name }} exists? -> [{{ item.name == zfs.pool_name }}] It has {{ item.free }} free space out of {{ item.size }}.'
   loop: "{{ ansible_zfs_pools | flatten(levels=1) }}"
 
-- name: Create zsh pool '{{zfs.pool_name}}' with 2
-  shell: 'zpool create {{zfs.pool_name}} mirror {{zfs.disk1}} {{zfs.disk2}}'
-  when: 'not (ansible_zfs_pools|length > 0 and ansible_zfs_pools[0].name == zfs.pool_name)'
+# Disable the creation of the main ZFS pool - the when condition doesn't work well with backup pools
+# - name: Create zsh pool '{{zfs.pool_name}}' with 2
+#   shell: 'zpool create {{zfs.pool_name}} mirror {{zfs.disk1}} {{zfs.disk2}}'
+#   when: 'not (ansible_zfs_pools|length > 0 and ansible_zfs_pools[0].name == zfs.pool_name)'
 
 - name: Enable auto snapshots for {{zfs.pool_name}}
   shell: zfs set com.sun:auto-snapshot=true {{zfs.pool_name}}
@@ -58,3 +61,57 @@
     zfs set com.sun:auto-snapshot:daily=false {{zfs.pool_name}}/local
     zfs set com.sun:auto-snapshot:hourly=false {{zfs.pool_name}}/local
     zfs set com.sun:auto-snapshot:frequent=false {{zfs.pool_name}}/local
+
+- name: Install zfs-common library
+  template:
+    src: zfs-common.sh
+    dest: "/usr/local/lib/zfs-common.sh"
+
+- name: Create logs /var/log/zfs-admin directory
+  file:
+    path: /var/log/zfs-admin
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+
+- name: Install zfs-status script
+  copy:
+    src: zfs-status.sh
+    dest: "/usr/local/bin/zfs-status.sh"
+    mode: u=rwx,g=rx,o=rx
+
+- name: Run zfs-status every 15 minutes
+  cron:
+    name: zfs-status
+    job: "/usr/local/bin/zfs-status.sh"
+    minute: "*/15"
+
+- name: Download zfs-prune-snapshots to /usr/local/bin
+  get_url:
+    url: https://raw.githubusercontent.com/bahamas10/zfs-prune-snapshots/master/zfs-prune-snapshots
+    dest: /usr/local/bin/zfs-prune-snapshots
+    mode: u=rwx,g=rx,o=rx
+
+- name: Install zfs-backup script to /usr/local/bin
+  copy:
+    src: zfs-status.sh
+    dest: "/usr/local/bin/zfs-backup.sh"
+    mode: u=rwx,g=rx,o=rx
+
+- name: Run zfs-backup every 30 minutes
+  cron:
+    name: zfs-backup
+    job: "/usr/local/bin/zfs-backup.sh"
+    minute: "*/30"
+
+- name: Install zfs-check-backup script to /usr/local/bin
+  copy:
+    src: zfs-status.sh
+    dest: "/usr/local/bin/zfs-check-backup.sh"
+    mode: u=rwx,g=rx,o=rx
+
+- name: Run zfs-check-backup at 22:00
+  cron:
+    name: zfs-check-backup
+    job: "/usr/local/bin/zfs-check-backup.sh"
+    minute: "0"
+    hour: "22"
