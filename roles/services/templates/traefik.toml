@@ -1,0 +1,37 @@
+debug = false
+
+logLevel = "INFO" #DEBUG, INFO, WARN, ERROR, FATAL, PANIC
+defaultEntryPoints = ["https", "http"]
+
+# WEB interface of Traefik - it will show web page with overview of frontend and backend configurations
+[api]
+  entryPoint = "traefik"
+  dashboard = true
+  address = ":8080"
+
+# Force HTTPS
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+
+# Let's encrypt configuration
+[acme]
+  email = "{{ vault_domain.letsencrypt_email }}"
+  storage = "/etc/traefik/acme/acme.json"
+  entryPoint = "https"
+  acmeLogging = true
+  OnHostRule = true
+[acme.dnsChallenge]
+  provider = "ovh"
+
+[docker]
+  endpoint = "unix:///var/run/docker.sock"
+  domain = "{{ vault_domain.name }}"
+  # This will hide all docker containers that don't have explicitly set label to "enable"
+  exposedByDefault = false
+  network = "{{ docker.network }}"

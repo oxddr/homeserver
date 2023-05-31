@@ -1,11 +1,35 @@
 ---
-- name: Setup docker .env file
-  template:
-    src: docker.env
-    dest: "{{ role_path }}/definitions/pihole/.env"
-  tags: pihole
-
 - name: Create and start pihole service
   community.docker.docker_compose:
-    project_src: "{{ role_path }}/definitions/pihole"
-  tags: pihole
+    project_name: "pihole"
+    definition:
+      version: "3.3"
+      networks:
+        proxynet:
+          external:
+            name: "{{ docker.network }}"
+        default:
+          driver: bridge
+      services:
+        pihole:
+          container_name: pihole
+          image: pihole/pihole:latest
+          restart: unless-stopped
+          ports:
+            - "53:53/tcp"
+            - "53:53/udp"
+          networks:
+            - default
+            - "{{ docker.network }}"
+          environment:
+            TZ: "{{ docker.tz }}"
+            WEBPASSWORD: "{{ vault_pihole_webpassword }}"
+            FTLCONF_LOCAL_IPV4: "{{ net.ip }}"
+          volumes:
+            - "{{ docker.data_dir }}/pihole/etc-pihole:/etc/pihole"
+            - "{{ docker.data_dir }}/pihole/etc-dnsmasq.d:/etc/dnsmasq.d"
+          labels:
+            - "traefik.enable=true"
+            - "traefik.backend=pihole"
+            - "traefik.frontend.rule=Host:pihole.{{ vault_domain.name }}"
+            - "traefik.port=80"

@@ -1,3 +1,7 @@
 ---
 - import_tasks: "whoami.yaml"
+  tags: whoami
 - import_tasks: "pihole.yaml"
+  tags: pihole
+- import_tasks: "traefik.yaml"
+  tags: traefik

@@ -1,5 +1,25 @@
 ---
 - name: Create and start whoami service
   community.docker.docker_compose:
-    project_src: "{{ role_path }}/definitions/whoami"
-  tags: whoami
+    project_name: "whoami"
+    definition:
+      version: "3.3"
+      networks:
+        proxynet:
+          external:
+            name: "{{ docker.network }}"
+        default:
+          driver: bridge
+      services:
+        whoami:
+          image: containous/whoami
+          container_name: whoami
+          restart: unless-stopped
+          networks:
+            - default
+            - "{{ docker.network }}"
+          labels:
+            - "traefik.enable=true"
+            - "traefik.backend=whoami"
+            - "traefik.frontend.rule=Host:whoami.{{ vault_domain.name }}"
+            - "traefik.port=80"
