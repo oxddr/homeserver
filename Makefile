@@ -11,4 +11,4 @@ tag:
 
 .PHONY: secret
 secret:
-	ansible-vault edit $(VAULT_PASS) ansible/vars/vault.yaml
+	ansible-vault edit $(VAULT_PASS) vars/vault.yaml
