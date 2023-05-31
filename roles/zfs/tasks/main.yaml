@@ -93,7 +93,7 @@
 
 - name: Install zfs-backup script to /usr/local/bin
   copy:
-    src: zfs-status.sh
+    src: zfs-backup.sh
     dest: "/usr/local/bin/zfs-backup.sh"
     mode: u=rwx,g=rx,o=rx
 
@@ -105,7 +105,7 @@
 
 - name: Install zfs-check-backup script to /usr/local/bin
   copy:
-    src: zfs-status.sh
+    src: zfs-check-backup.sh
     dest: "/usr/local/bin/zfs-check-backup.sh"
     mode: u=rwx,g=rx,o=rx
 
