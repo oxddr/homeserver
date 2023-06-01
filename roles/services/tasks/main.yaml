@@ -7,3 +7,5 @@
   tags: traefik
 - import_tasks: "watchtower.yaml"
   tags: watchtower
+- import_tasks: "calibre.yaml"
+  tags: calibre

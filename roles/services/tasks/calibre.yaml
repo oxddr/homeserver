@@ -1,0 +1,48 @@
+---
+- name: Create directory for calibre data
+  file:
+    path: "{{ docker.personal_dir }}/calibre"
+    owner: "{{ docker.user }}"
+    group: "{{ docker.user }}"
+    state: directory
+
+- name: Create directory for calibre config
+  file:
+    path: "{{ docker.data_dir }}/calibre"
+    owner: "{{ docker.user }}"
+    group: "{{ docker.user }}"
+    state: directory
+
+- name: Create and start calibre service
+  community.docker.docker_compose:
+    project_name: calibre
+    definition:
+      version: "3.3"
+      networks:
+        proxynet:
+          external:
+            name: "{{ docker.network }}"
+        default:
+          driver: bridge
+      services:
+        calibre:
+          image: lscr.io/linuxserver/calibre-web:latest
+          container_name: calibre
+          restart: unless-stopped
+          networks:
+            - default
+            - "{{ docker.network }}"
+          labels:
+            - "traefik.enable=true"
+            - "traefik.backend=calibre"
+            - "traefik.frontend.rule=Host:calibre.{{ vault_domain.name }}"
+            - "traefik.port=8083"
+          environment:
+            PUID: "{{ docker.PUID }}"
+            PGID: "{{ docker.PGID }}"
+            TZ: "{{ docker.tz }}"
+            DOCKER_MODS: "linuxserver/mods:universal-calibre" # optional: allows performing ebook conversion
+            OAUTHLIB_RELAX_TOKEN_SCOPE: 1 # optional: allow Google OAUTH to work
+          volumes:
+            - "{{ docker.personal_dir }}/calibre:/books"
+            - "{{ docker.data_dir }}/calibre:/config"

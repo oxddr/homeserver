@@ -12,8 +12,7 @@ zfs:
       - 'docker'
       - 'personal'
 
-usergroups:
-  - family
+usergroup: family
 
 users:
   -
@@ -38,8 +37,12 @@ shared_folders:
 
 docker:
   tz: "Europe/Warsaw"
-  data_dir: '/{{zfs.pool_name}}/docker/data'
+  user: "srv"
+  data_dir: '/{{ zfs.pool_name }}/docker/data'
+  personal_dir: '/{{ zfs.pool_name }}/personal/docker/'
   network: 'proxynet'
+  PUID: 1002
+  PGID: 1003
 
 net:
   ip: '192.168.1.50'

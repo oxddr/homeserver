@@ -36,6 +36,13 @@
     name: docker
     state: present
 
+- name: Create user to own files
+  user:
+    name: "{{ docker.user }}"
+    groups: "{{ usergroup }}"
+    append: yes
+    update_password: on_create
+
 - name: Start docker
   ansible.builtin.systemd:
     state: started
