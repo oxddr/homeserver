@@ -1,7 +1,7 @@
 ---
 - name: Create directory for calibre data
   file:
-    path: "{{ docker.personal_dir }}/calibre"
+    path: "{{ docker.personal_dir }}/books"
     owner: "{{ docker.user }}"
     group: "{{ docker.user }}"
     state: directory
@@ -44,5 +44,5 @@
             DOCKER_MODS: "linuxserver/mods:universal-calibre" # optional: allows performing ebook conversion
             OAUTHLIB_RELAX_TOKEN_SCOPE: 1 # optional: allow Google OAUTH to work
           volumes:
-            - "{{ docker.personal_dir }}/calibre:/books"
+            - "{{ docker.personal_dir }}/books:/books"
             - "{{ docker.data_dir }}/calibre:/config"
