@@ -31,7 +31,7 @@ do
         done
 
         # cleanup
-        echo "$(date) - Starting cleanup of backup pool $backup_pool"
+        echo "$(date) - Starting cleanup of backup pool $backup_pool" >> $LOGFILE
         $ZFS_PRUNE -p 'zfs-auto-snap_frequent' 1h $backup_pool  >> $LOGFILE 2>&1
         $ZFS_PRUNE -p 'zfs-auto-snap_hourly' 2d $backup_pool  >> $LOGFILE 2>&1
         $ZFS_PRUNE -p 'zfs-auto-snap_daily' 2M $backup_pool  >> $LOGFILE 2>&1
