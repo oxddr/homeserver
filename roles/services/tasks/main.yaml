@@ -9,3 +9,5 @@
   tags: watchtower
 - import_tasks: "calibre.yaml"
   tags: calibre
+- import_tasks: "audiobookshelf.yaml"
+  tags: audiobookshelf

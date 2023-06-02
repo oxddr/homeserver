@@ -1,0 +1,62 @@
+---
+- name: Create directory for audiobooks
+  file:
+    path: "{{ docker.personal_dir }}/audiobooks"
+    owner: "{{ docker.user }}"
+    group: "{{ docker.user }}"
+    state: directory
+
+- name: Create directory for podcasts
+  file:
+    path: "{{ docker.personal_dir }}/podcasts"
+    owner: "{{ docker.user }}"
+    group: "{{ docker.user }}"
+    state: directory
+
+- name: Create directory for audiobookshelf config
+  file:
+    path: "{{ docker.data_dir }}/audiobookshelf/config"
+    owner: "{{ docker.user }}"
+    group: "{{ docker.user }}"
+    state: directory
+
+
+- name: Create directory for audiobookshelf config
+  file:
+    path: "{{ docker.data_dir }}/audiobookshelf/metadata"
+    owner: "{{ docker.user }}"
+    group: "{{ docker.user }}"
+    state: directory
+
+- name: Create and start audiobookshelf service
+  community.docker.docker_compose:
+    project_name: audiobookshelf
+    definition:
+      version: "3.7"
+      networks:
+        proxynet:
+          external:
+            name: "{{ docker.network }}"
+        default:
+          driver: bridge
+      services:
+        audiobookshelf:
+          image: ghcr.io/advplyr/audiobookshelf:latest
+          container_name: audiobookshelf
+          restart: unless-stopped
+          networks:
+            - default
+            - "{{ docker.network }}"
+          labels:
+            - "traefik.enable=true"
+            - "traefik.backend=audiobookshelf"
+            - "traefik.frontend.rule=Host:audiobookshelf.{{ vault_domain.name }}"
+            - "traefik.port=80"
+          environment:
+            PUID: "{{ docker.PUID }}"
+            PGID: "{{ docker.PGID }}"
+          volumes:
+            - "{{ docker.personal_dir }}/audiobooks:/audiobooks"
+            - "{{ docker.personal_dir }}/podcasts:/podcasts"
+            - "{{ docker.data_dir }}/audiobookshelf/config:/config"
+            - "{{ docker.data_dir }}/audiobookshelf/metadata:/metadata"

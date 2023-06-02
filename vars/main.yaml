@@ -39,7 +39,7 @@ docker:
   tz: "Europe/Warsaw"
   user: "srv"
   data_dir: '/{{ zfs.pool_name }}/docker/data'
-  personal_dir: '/{{ zfs.pool_name }}/personal/shared/'
+  personal_dir: '/{{ zfs.pool_name }}/personal/shared'
   network: 'proxynet'
   PUID: 1002
   PGID: 1003
