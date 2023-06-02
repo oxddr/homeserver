@@ -11,3 +11,5 @@
   tags: calibre
 - import_tasks: "audiobookshelf.yaml"
   tags: audiobookshelf
+- import_tasks: "nextcloud.yaml"
+  tags: nextcloud

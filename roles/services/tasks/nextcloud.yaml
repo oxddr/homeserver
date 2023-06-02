@@ -1,0 +1,96 @@
+---
+- name: Create directory for nextcloud data
+  file:
+    path: "{{ docker.personal_dir }}/nextcloud"
+    owner: "www-data"
+    group: "www-data"
+    mode: o=rwx,g=rwx
+    state: directory
+
+- name: Create directory for nextcloud config
+  file:
+    path: "{{ docker.data_dir }}/nextcloud"
+    owner: "{{ docker.user }}"
+    group: "{{ docker.user }}"
+    state: directory
+
+- name: Create and start nextcloud service
+  community.docker.docker_compose:
+    project_name: nextcloud
+    definition:
+      version: "3.3"
+      networks:
+        proxynet:
+          external:
+            name: "{{ docker.network }}"
+        default:
+          driver: bridge
+      services:
+        db:
+          image: mariadb:10.11
+          container_name: nextcloud-mariadb
+          restart: unless-stopped
+          command:
+            - "--transaction-isolation=READ-COMMITTED"
+            - "--log-bin=binlog"
+            - "--binlog-format=ROW"
+          networks:
+            - default
+          volumes:
+            - "{{ docker.data_dir }}/nextcloud/db:/var/lib/mysql"
+          environment:
+            MARIADB_ROOT_PASSWORD: "{{ vault_nextcloud.mysql_root_password }}"
+            MARIADB_PASSWORD: "{{ vault_nextcloud.mysql_password }}"
+            MARIADB_DATABASE: nextcloud
+            MARIADB_USER: nextcloud
+            PUID: "{{ docker.PUID }}"
+            PGID: "{{ docker.PGID }}"
+
+        redis:
+          image: redis:alpine
+          container_name: nextcloud-redis
+          restart: unless-stopped
+          networks:
+            - default
+          volumes:
+            - "{{ docker.data_dir }}/nextcloud/redis:/data"
+          environment:
+            PUID: "{{ docker.PUID }}"
+            PGID: "{{ docker.PGID }}"
+
+        app:
+          image: nextcloud:latest
+          restart: unless-stopped
+          container_name: nextcloud
+          networks:
+            - default
+            - "{{ docker.network }}"
+          labels:
+            - "traefik.enable=true"
+            - "traefik.port=80"
+            - "traefik.backend=nextcloud"
+            - "traefik.frontend.rule=Host:nextcloud.{{ vault_domain.name }}"
+            - "traefik.frontend.headers.SSLRedirect=true"
+            - "traefik.frontend.headers.STSSeconds=315360000"
+            - "traefik.frontend.headers.browserXSSFilter=true"
+            - "traefik.frontend.headers.contentTypeNosniff=true"
+            - "traefik.frontend.headers.forceSTSHeader=true"
+            - "traefik.frontend.headers.SSLHost={{ vault_domain.name }}"
+            - "traefik.frontend.headers.STSIncludeSubdomains=true"
+            - "traefik.frontend.headers.STSPreload=true"
+          volumes:
+            - "{{ docker.data_dir }}/nextcloud/data:/var/www/html"
+            - "{{ docker.personal_dir }}/nextcloud:/var/www/html/data"
+          environment:
+            PUID: "{{ docker.PUID }}"
+            PGID: "{{ docker.PGID }}"
+            MYSQL_PASSWORD: "{{ vault_nextcloud.mysql_password }}"
+            MYSQL_DATABASE: nextcloud
+            MYSQL_USER: nextcloud
+            MYSQL_HOST: db
+            REDIS_HOST: redis
+            # APACHE_DISABLE_REWRITE_IP: 1
+            TRUSTED_PROXIES: 172.18.0.0/16
+          depends_on:
+            - redis
+            - db
