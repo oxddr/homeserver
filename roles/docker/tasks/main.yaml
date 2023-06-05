@@ -29,6 +29,7 @@
     name:
       - docker
       - docker-compose
+      - websockets
   tags: pip
 
 - name: Ensure docker group exists

@@ -1,0 +1,17 @@
+---
+- name: Create and start openvpn service
+  community.docker.docker_compose:
+    project_name: "openvpn"
+    definition:
+      version: "2"
+      services:
+        openvpn:
+          container_name: openvpn
+          image: kylemanna/openvpn
+          restart: unless-stopped
+          cap_add:
+            - NET_ADMIN
+          ports:
+            - "1194:1194/udp"
+          volumes:
+            - "{{ docker.data_dir }}/openvpn/conf:/etc/openvpn"

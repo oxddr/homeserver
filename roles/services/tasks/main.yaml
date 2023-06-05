@@ -13,3 +13,5 @@
   tags: audiobookshelf
 - import_tasks: "nextcloud.yaml"
   tags: nextcloud
+- import_tasks: "openvpn.yaml"
+  tags: openvpn
