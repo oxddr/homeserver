@@ -33,6 +33,7 @@
       apt:
         name:
           - avahi-daemon
+          - rclone
           - unattended-upgrades
         state: latest
         cache_valid_time: 3600
