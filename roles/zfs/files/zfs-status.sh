@@ -9,9 +9,8 @@ set -euo pipefail
 source /usr/local/lib/zfs-common.sh || exit 1
 
 LOGFILE="/var/log/zfs-admin/zfs-status.log"
-ZPOOL="/sbin/zpool"
 
-if [ "$(${ZPOOL} status ${MAIN_POOL} -x)" != "pool '${MAIN_POOL}' is healthy" ]; then
+if [ "$(zpool_health ${MAIN_POOL})" != "healthy" ]; then
     echo "$(date) - Alarm - zpool ${MAIN_POOL} is not healthy" >> $LOGFILE
     curl -s \
          -F "token=$PUSHOVER_TOKEN" \

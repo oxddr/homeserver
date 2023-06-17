@@ -9,16 +9,10 @@ set -euo pipefail
 source /usr/local/lib/zfs-common.sh
 
 LOGFILE="/var/log/zfs-admin/zfs-backup.log"
-SYNCOID="/usr/sbin/syncoid"
-ZFS_PRUNE="/usr/local/bin/zfs-prune-snapshots"
-ZPOOL="/sbin/zpool"
-
 
 for backup_pool in ${BACKUP_POOLS[@]}
 do
-    is_online=$(${ZPOOL} status $backup_pool | grep -i 'state: ONLINE' | wc -l)
-
-    if [ $is_online -ge 1 ]
+    if [ "$(zpool_health $backup_pool)" == "healthy" ]
     then
         echo "$(date) - $backup_pool is online. Starting backup..." >> $LOGFILE
 
@@ -40,7 +34,7 @@ do
         # yearly kept forever
     else
         echo "$(date) - $backup_pool is not online. Trying to import it" >> $LOGFILE
-        ${ZPOOL} import $backup_pool
+        ${ZPOOL} import $backup_pool || true
     fi
 done
 echo "$(date) - script run done" >> $LOGFILE

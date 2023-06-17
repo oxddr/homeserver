@@ -8,6 +8,7 @@ zfs:
   backup:
     pools:
       - 'backup-wdc'
+      - 'backup-seagate'
     filesystems:
       - 'docker'
       - 'personal'

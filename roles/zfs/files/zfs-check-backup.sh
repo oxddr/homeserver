@@ -9,15 +9,11 @@ set -euo pipefail
 source /usr/local/lib/zfs-common.sh
 
 LOGFILE="/var/log/zfs-admin/zfs-check-backup.log"
-ZFS="/sbin/zfs"
-ZPOOL="/sbin/zpool"
 
 hasRecentBackups=false
 for backup_pool in ${BACKUP_POOLS[@]}
 do
-    is_online=$($ZPOOL status $backup_pool | grep -i 'state: ONLINE' | wc -l)
-
-    if [ $is_online -ge 1 ]
+    if [ "$(zpool_health $backup_pool)" == "healthy" ]
     then
 	echo "$(date) - Found online pool $backup_pool" >> $LOGFILE
 	# find and compare latest snapshot to today
