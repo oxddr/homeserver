@@ -4,7 +4,6 @@
     path: "{{ docker.personal_dir }}/nextcloud"
     owner: "www-data"
     group: "www-data"
-    mode: o=rwx,g=rwx
     state: directory
 
 - name: Create directory for nextcloud config
@@ -89,7 +88,6 @@
             MYSQL_USER: nextcloud
             MYSQL_HOST: db
             REDIS_HOST: redis
-            # APACHE_DISABLE_REWRITE_IP: 1
             TRUSTED_PROXIES: 172.18.0.0/16
           depends_on:
             - redis
