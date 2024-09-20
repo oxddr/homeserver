@@ -1,0 +1,31 @@
+---
+- name: Create directory for paperless data
+  file:
+    path: "{{ docker.personal_dir }}/paperless"
+    state: directory
+
+- name: Create directory for paperless config
+  file:
+    path: "{{ docker.data_dir }}/paperless"
+    state: directory
+
+- name: Create directory for paperless-consume
+  file:
+    path: "/{{ zfs.pool_name }}/personal/all/paperless-consume"
+    owner: "{{ docker.user }}"
+    group: "{{ docker.user }}"
+    state: directory
+
+- name: Create directory for joplin-server Docker files
+  file:
+    path: "services/paperless"
+    state: directory
+
+- name: Create docker-compose file for paperless
+  template:
+    src: docker-compose.yml
+    dest: services/paperless/docker-compose.yml
+
+- name: Create and start paperless service
+  community.docker.docker_compose_v2:
+    project_src: services/paperless

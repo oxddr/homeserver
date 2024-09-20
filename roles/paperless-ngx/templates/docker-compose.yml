@@ -1,0 +1,101 @@
+version: "3.3"
+networks:
+  proxynet:
+    external:
+      name: "{{ docker.network }}"
+  default:
+    driver: bridge
+services:
+  db:
+    image: postgres:15
+    container_name: paperless-postgres
+    restart: unless-stopped
+    networks:
+      - default
+    volumes:
+      - "{{ docker.data_dir }}/paperless/db:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: paperless
+
+  redis:
+    image: redis:alpine
+    container_name: paperless-redis
+    restart: unless-stopped
+    networks:
+      - default
+    volumes:
+      - "{{ docker.data_dir }}/paperless/redis:/data"
+    # environment:
+    #   PUID: "{{ docker.PUID }}"
+    #   PGID: "{{ docker.PGID }}"
+
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless-ngx
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+      - gotenberg
+      - tika
+    # healthcheck:
+    #   test:
+    #     [
+    #       "CMD",
+    #       "curl",
+    #       "-fs",
+    #       "-S",
+    #       "--max-time",
+    #       "2",
+    #       "https://paperless.{{ vault_domain.name }}",
+    #     ]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
+    networks:
+      - default
+      - "{{ docker.network }}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=8000"
+      - "traefik.backend=paperless"
+      - "traefik.frontend.rule=Host:paperless.{{ vault_domain.name }}"
+    volumes:
+      - "{{ docker.data_dir }}/paperless/data:/usr/src/paperless/data"
+      - "{{ docker.personal_dir }}/paperless/media:/usr/src/paperless/media"
+      - "/{{ zfs.pool_name }}/personal/all/paperless-consume:/usr/src/paperless/consume"
+    environment:
+      PAPERLESS_REDIS: redis://redis:6379
+      PAPERLESS_DBHOST: db
+      PAPERLESS_TIKA_ENABLED: 1
+      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000
+      PAPERLESS_TIKA_ENDPOINT: http://tika:9998
+      PAPERLESS_OCR_LANGUAGE: pol+eng
+      PAPERLESS_OCR_LANGUAGES: pol
+      PAPERLESS_URL: "https://paperless.{{ vault_domain.name }}"
+      PAPERLESS_TIME_ZONE: "{{ docker.tz }}"
+      PAPERLESS_FILENAME_FORMAT_REMOVE_NONE: 1
+      PAPERLESS_FILENAME_FORMAT: "{correspondent}/{created} {document_type} {title}"
+      USERMAP_UID: "{{ docker.PUID }}"
+      USERMAP_GID: "{{ docker.PGID }}"
+      PAPERLESS_ADMIN_USER: admin
+      PAPERLESS_ADMIN_PASSWORD: "{{ vault_paperless.admin.password }}"
+
+  gotenberg:
+    image: gotenberg/gotenberg:7
+    restart: unless-stopped
+    container_name: paperless-gotenberg
+
+    # The gotenberg chromium route is used to convert .eml files. We do not
+    # want to allow external content like tracking pixels or even javascript.
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=true"
+      - "--chromium-allow-list=file:///tmp/.*"
+
+  tika:
+    image: ghcr.io/paperless-ngx/tika:latest
+    restart: unless-stopped
+    container_name: paperless-tika

@@ -22,6 +22,8 @@
         tags: service
       - role: joplin-server
         tags: joplin
+      - role: paperless-ngx
+        tags: paperless
 
     pre_tasks:
     - name: Run the equivalent of "apt-get update"
