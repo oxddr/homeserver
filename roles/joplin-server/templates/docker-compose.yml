@@ -62,3 +62,4 @@ services:
       POSTGRES_DB: joplin
       POSTGRES_PASSWORD: joplin
       POSTGRES_USER: joplin
+      TZ: "{{docker.tz}}"
