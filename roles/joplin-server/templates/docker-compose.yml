@@ -1,0 +1,64 @@
+# This file is based on the sample docker-compose file that can be used to run Joplin Server
+# along with a PostgreSQL server.
+# Original file: https://raw.githubusercontent.com/laurent22/joplin/dev/docker-compose.server.yml
+#
+# Update the following fields in the stanza below:
+#
+# POSTGRES_USER
+# POSTGRES_PASSWORD
+# APP_BASE_URL
+#
+# APP_BASE_URL: This is the base public URL where the service will be running.
+#	- If Joplin Server needs to be accessible over the internet, configure APP_BASE_URL as follows: https://example.com/joplin.
+#	- If Joplin Server does not need to be accessible over the internet, set the APP_BASE_URL to your server's hostname.
+#     For Example: http://[hostname]:22300. The base URL can include the port.
+# APP_PORT: The local port on which the Docker container will listen.
+#	- This would typically be mapped to port to 443 (TLS) with a reverse proxy.
+#	- If Joplin Server does not need to be accessible over the internet, the port can be mapped to 22300.
+
+version: '3'
+
+networks:
+  proxynet:
+    external:
+      name: "{{ docker.network }}"
+  default:
+    driver: bridge
+
+services:
+  db:
+    image: postgres:16
+    container_name: joplin-postgres
+    restart: unless-stopped
+    networks:
+      - default
+    volumes:
+      - "{{ docker.data_dir }}/joplin-server/db/:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_DB: joplin
+      POSTGRES_PASSWORD: joplin
+      POSTGRES_USER: joplin
+
+  app:
+    image: joplin/server:latest
+    container_name: joplin-server
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - default
+      - "{{ docker.network }}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=22300"
+      - "traefik.backend=joplin"
+      - "traefik.frontend.rule=Host:joplin.{{ vault_domain.name }}"
+    environment:
+      APP_PORT: 22300
+      APP_BASE_URL: "https://joplin.{{ vault_domain.name }}"
+      DB_CLIENT: pg
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: joplin
+      POSTGRES_PASSWORD: joplin
+      POSTGRES_USER: joplin

@@ -1,0 +1,19 @@
+---
+- name: Create directory for joplin-server config
+  file:
+    path: "{{ docker.data_dir }}/joplin-server/"
+    state: directory
+
+- name: Create directory for joplin-server Docker files
+  file:
+    path: "services/joplin-server"
+    state: directory
+
+- name: Create docker-compose file
+  template:
+    src: docker-compose.yml
+    dest: services/joplin-server/docker-compose.yml
+
+- name: Create and start nextcloud service
+  community.docker.docker_compose_v2:
+    project_src: services/joplin-server
