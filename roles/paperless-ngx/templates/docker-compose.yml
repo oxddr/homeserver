@@ -74,6 +74,9 @@ services:
       PAPERLESS_TIKA_ENDPOINT: http://tika:9998
       PAPERLESS_OCR_LANGUAGE: pol+eng
       PAPERLESS_OCR_LANGUAGES: pol
+      # Fix DigitalSignatureError
+      # https://github.com/paperless-ngx/paperless-ngx/discussions/4047
+      PAPERLESS_OCR_USER_ARGS: '{"invalidate_digital_signatures": true}'
       PAPERLESS_URL: "https://paperless.{{ vault_domain.name }}"
       PAPERLESS_TIME_ZONE: "{{ docker.tz }}"
       PAPERLESS_FILENAME_FORMAT_REMOVE_NONE: 1
