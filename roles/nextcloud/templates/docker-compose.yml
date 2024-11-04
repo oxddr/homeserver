@@ -76,7 +76,13 @@ services:
       REDIS_HOST: redis
       TRUSTED_PROXIES: 172.18.0.0/16
       APACHE_DISABLE_REWRITE_IP: 1
-      PHP_UPLOAD_LIMIT: 4G
+      # Allow for uploads of large files
+      # More at:
+      #  * https://docs.nextcloud.com/server/latest/admin_manual/configuration_files/big_file_upload_configuration.html
+      #  * https://github.com/nextcloud/docker?tab=readme-ov-file#auto-configuration-via-environment-variables
+      PHP_UPLOAD_LIMIT: 16G
+      PHP_MEMORY_LIMIT: 16G
+      APACHE_BODY_LIMIT: 0
     depends_on:
       - redis
       - db
