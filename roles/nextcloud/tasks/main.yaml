@@ -1,0 +1,28 @@
+---
+- name: Create directory for nextcloud data
+  file:
+    path: "{{ docker.personal_dir }}/nextcloud"
+    owner: "www-data"
+    group: "www-data"
+    state: directory
+
+- name: Create directory for nextcloud config
+  file:
+    path: "{{ docker.data_dir }}/nextcloud"
+    owner: "{{ docker.user }}"
+    group: "{{ docker.user }}"
+    state: directory
+
+- name: Create directory for Nextcloud Docker files
+  file:
+    path: "services/nextcloud"
+    state: directory
+
+- name: Create nextcloud docker-compose file
+  template:
+    src: docker-compose.yml
+    dest: services/nextcloud/docker-compose.yml
+
+- name: Create and start Nextcloud instance
+  community.docker.docker_compose_v2:
+    project_src: services/nextcloud

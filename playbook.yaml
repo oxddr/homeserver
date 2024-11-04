@@ -24,6 +24,8 @@
         tags: joplin
       - role: paperless-ngx
         tags: paperless
+      - role: nextcloud
+        tags: nextcloud
 
     pre_tasks:
     - name: Run the equivalent of "apt-get update"
