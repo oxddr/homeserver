@@ -1,0 +1,19 @@
+---
+- name: Create directory for Wallabag data
+  file:
+    path: "{{ docker.data_dir }}/wallabag"
+    state: directory
+
+- name: Create directory for Wallabag Docker files
+  file:
+    path: "services/wallabag"
+    state: directory
+
+- name: Create Wallabag docker-compose file
+  template:
+    src: docker-compose.yml
+    dest: services/wallabag/docker-compose.yml
+
+- name: Create and start Wallabag instance
+  community.docker.docker_compose_v2:
+    project_src: services/wallabag
