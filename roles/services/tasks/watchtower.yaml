@@ -17,3 +17,4 @@
             WATCHTOWER_CLEANUP: "true" # optional - deletes old images to safe some space
             WATCHTOWER_NOTIFICATIONS: shoutrrr
             WATCHTOWER_NOTIFICATION_URL: "pushover://shoutrrr:{{ vault_pushover.token }}@{{ vault_pushover.user }}"
+            WATCHTOWER_SCHEDULE: "0 17 20 * * *" # run check daily at 20:17
