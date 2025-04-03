@@ -7,8 +7,8 @@ zfs:
   disk2: '/dev/disk/by-id/ata-ST4000VN008-2DR166_ZDH1P0F2'
   backup:
     pools:
-      - 'backup-wdc'
-      - 'backup-seagate'
+      - 'backup-toshiba-4t'
+      - 'backup-wd-4t'
     filesystems:
       - 'docker'
       - 'personal'
