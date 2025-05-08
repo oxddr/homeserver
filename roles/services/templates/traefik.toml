@@ -27,6 +27,8 @@ defaultEntryPoints = ["https", "http"]
   acmeLogging = true
   OnHostRule = true
 [acme.dnsChallenge]
+  resolvers = ["1.1.1.1:53", "8.8.8.8:53"]
+  delayBeforeCheck = 60
   provider = "ovh"
 
 [docker]
