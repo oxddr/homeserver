@@ -1,0 +1,23 @@
+---
+- name: Create Wireguard directory
+  file:
+    path: "{{ docker.data_dir }}/wireguard"
+    state: directory
+    owner: "{{ docker.user }}"
+    group: "{{ docker.user }}"
+
+- name: Create directory for Wireguard Docker files
+  file:
+    path: "services/wireguard"
+    state: directory
+
+- name: Create wireguard docker-compose file
+  template:
+    src: docker-compose.yml
+    dest: services/wireguard/docker-compose.yml
+
+- name: Start wireguard
+  community.docker.docker_compose_v2:
+    project_src: "services/wireguard"
+
+

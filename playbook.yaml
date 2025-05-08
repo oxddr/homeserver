@@ -28,6 +28,8 @@
         tags: nextcloud
       - role: conflux-wallabag
         tags: wallabag
+      - role: conflux-wireguard
+        tags: wireguard
 
     pre_tasks:
     - name: Run the equivalent of "apt-get update"
