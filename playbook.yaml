@@ -22,7 +22,7 @@
         tags: service
       - role: joplin-server
         tags: joplin
-      - role: paperless-ngx
+      - role: conflux-paperless
         tags: paperless
       - role: nextcloud
         tags: nextcloud
